@@ -187,7 +187,7 @@ double prompt(const char* message)
 {
    double response;
    cout << message;
-   cin >> response;
+   cin  >> response;
    return response;
 }
 
@@ -197,34 +197,71 @@ double prompt(const char* message)
 ****************************************************************/
 int main()
 {
+   // Initialize Variables.
+   double x = 0.0;                // Initial horizontal position.
+   double aRadians;               // Angle in radians
+   double accelerationThrust;     // Acceleration due to thrust 
+   double ddxThrust;              // Horizontal acceleration due to thrust
+   double ddyThrust;              // Vertical acceleration due to thrust
+   double ddx;                    // Total horizontal acceleration
+   double ddy;                    // Total vertical acceleration
+   double v;                      // Total velocity
+
    // Prompt for input and variables to be computed.
-   double dx       = prompt("What is your horizontal velocity (m/s)? ");
    double dy       = prompt("What is your vertical velocity (m/s)? ");
+   double dx       = prompt("What is your horizontal velocity (m/s)? ");
    double y        = prompt("What is your altitude (m)? ");
    double aDegrees = prompt("What is the angle of the LM where 0 is up (degrees)? ");
 
+   // Compute acceleration because it does not change.
+   aRadians           = computeRadians(aDegrees);
+   accelerationThrust = computeAcceleration(THRUST, WEIGHT);
+   ddxThrust          = computeHorizontalComponent(aRadians, accelerationThrust);
+   ddyThrust          = computeVerticalComponent(aRadians, accelerationThrust);
+   ddx                = ddxThrust;
+   ddy                = ddyThrust + GRAVITY;
+
    // Output to display 10 second run time.
-   for (int i = 1; i < 6; i++)
+   for (int t = 1; t < 6; t++)
    {
+      // Update values.
+      x = computeDistance(x, dx, ddx, t);
+      y = computeDistance(y, dy, ddy, t);
+      dx = computeVelocity(dx, ddx, t);
+      dy = computeVelocity(dy, ddy, t);
+      v = computeTotalComponent(dx, dy);
+
+      // Output
       cout.setf(ios::fixed | ios::showpoint);
       cout.precision(2);
-      cout << "   " << i << "s " << "- "
+      cout << "   " << t << "s " << "- "
            << "x,y:("   << x  << ", " << y << ")m   "
            << "dx,dy:(" << dx << ", " << dy << ")m/s   "
-           << "speed:"  << speed   << "m/s   "
-           << "angle:(" << degrees << ")deg";
+           << "speed:"  << v   << "m/s   "
+           << "angle:(" << aDegrees << ")deg"
+           << endl;
    }
    // Prompt for the new angle.
-   cout << "\nWhat is the new angle of the LM where 0 is up (degrees)? \n";
-   for (int i = 6; i < 11; i++)
+   cout << "\nWhat is the new angle of the LM where 0 is up (degrees)? ";
+   cin  >> aDegrees;
+   for (int t = 6; t < 11; t++)
    {
+      // Update values.
+      x = computeDistance(x, dx, ddx, t);
+      y = computeDistance(y, dy, ddy, t);
+      dx = computeVelocity(dx, ddx, t);
+      dy = computeVelocity(dy, ddy, t);
+      v = computeTotalComponent(dx, dy);
+
+      // Output
       cout.setf(ios::fixed | ios::showpoint);
       cout.precision(2);
-      cout << "   " << i << "s " << "- "
+      cout << "   " << t << "s " << "- "
            << "x,y:("   << x  << ", " << y << ")m   "
            << "dx,dy:(" << dx << ", " << dy << ")m/s   "
-           << "speed:"  << speed   << "m/s   "
-           << "angle:(" << degrees << ")deg";
+           << "speed:"  << v   << "m/s   "
+           << "angle:(" << aDegrees << ")deg"
+           <<endl;
    }
 }
 
